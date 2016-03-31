@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $TRACE ]] && set -x
+
+readonly FILEDB_ROOT="${FILEDB_ROOT:-/var/lib/filedb}"
+readonly FILEDB_VERSION=0.0.1
+
+readonly EX_OK=0
+readonly EX_USAGE=64        # command line usage error
+readonly EX_DATAERR=65      # data format error
+readonly EX_NOINPUT=66      # cannot open input
+readonly EX_NOUSER=7        # addressee unknown
+readonly EX_NOHOST=8        # host name unknown
+readonly EX_UNAVAILABLE=69  # service unavailable
+readonly EX_SOFTWARE=0      # internal software error
+readonly EX_OSERR=71        # system error (e.g., can't fork)
+readonly EX_OSFILE=2        # critical OS file missing
+readonly EX_CANTCREAT=73    # can't create (user) output file
+readonly EX_IOERR=74        # input/output error
+readonly EX_TEMPFAIL=5      # temp failure; user is invited to retry
+readonly EX_PROTOCOL=6      # remote error in protocol
+readonly EX_NOPERM=7        # permission denied
+readonly EX_CONFIG=8        # configuration error
+
+cmd-help() {
+  declare desc="Shows help information for a command"
+  declare args="$*"
+  if [[ "$args" ]]; then
+      for cmd; do true; done # last arg
+      local fn="filedb-$cmd"
+      fn-info "$fn" 1
+  fi
+}
+
+fn-args() {
+  declare desc="Inspect a function's arguments"
+  local argline
+  argline=$(type "$1" | grep declare | grep -v "declare desc" | head -1)
+  echo -e "${argline// /"\n"}" | awk -F= '/=/{print "<"$1">"}' | tr "\n" " "
+}
+
+fn-desc() {
+  declare desc="Inspect a function's description"
+  desc=""
+  eval "$(type "$1" | grep desc | head -1)"; echo $desc
+}
+
+fn-info() {
+  declare desc="Inspects a function"
+  declare fn="$1" showsource="$2"
+  local fn_name="${1//filedb-/}"
+  echo "$fn_name $(fn-args "$fn")"
+  echo "  $(fn-desc "$fn")"
+  echo
+  if [[ "$showsource" ]]; then
+    type "$fn" | tail -n +2
+    echo
+  fi
+}
+
+log-fail() {
+  declare desc="log fail formatter"
+  echo "$@" 1>&2
+}
+
+log-verbose() {
+  declare desc="log verbose formatter"
+  if [[ ! -z "$FILEDB_VERBOSE_OUTPUT" ]]; then
+    echo "$@"
+  fi
+}
+
+filedb-help() {
+  echo "filedb $FILEDB_VERSION"
+  echo ""
+  fn-info "filedb-get-value"
+  fn-info "filedb-clear-value"
+  fn-info "filedb-set-value"
+  fn-info "filedb-set-value-from-file"
+  fn-info "filedb-unset-value"
+  fn-info "filedb-drop-domain"
+}
+
+filedb-get-value() {
+  declare desc="gets a value from a domain"
+  declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [ -z "$DOMAIN" ]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [ -z "$KEY" ]; then
+    log-fail "no key specified"
+    return $EX_USAGE
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-fail "key path $KEY_PATH does not exist"
+    return $EX_UNAVAILABLE
+  fi
+
+  cat "$KEY_PATH"
+  return 0
+}
+
+filedb-clear-value() {
+  declare desc="clears a value from a domain"
+  declare DOMAIN="$1" KEY="$2"
+  filedb-set-value "$DOMAIN" "$KEY" ""
+  return $?
+}
+
+filedb-set-value() {
+  declare desc="sets a value in a domain"
+  declare DOMAIN="$1" KEY="$2" VALUE="$3"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [ -z "$DOMAIN" ]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [ -z "$KEY" ]; then
+    log-fail "no key specified"
+    return $EX_USAGE
+  fi
+
+  if ! mkdir -p "$DOMAIN_PATH" 2>/dev/null; then
+    log-fail "unable to create the domain at $DOMAIN_PATH"
+    return $EX_UNAVAILABLE
+  fi
+
+  touch "$KEY_PATH" || true
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-fail "key path $KEY_PATH does not exist"
+    return $EX_UNAVAILABLE
+  fi
+
+  echo "$VALUE" > "$KEY_PATH"
+  log-verbose "wrote value to $KEY_PATH: $VALUE"
+  return 0
+}
+
+filedb-set-value-from-file() {
+  declare desc="reads in a file to set a value in a domain"
+  declare DOMAIN="$1" KEY="$2" FILENAME="$3"
+  local VALUE
+
+  if [[ ! -f "$FILENAME" ]]; then
+    return $EX_IOERR
+  fi
+
+  VALUE=$(cat "$FILENAME")
+  filedb-set-value "$DOMAIN" "$KEY" "$VALUE"
+  return $?
+}
+
+filedb-unset-value() {
+  declare desc="completely removes a value from domain"
+  declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [ -z "$DOMAIN" ]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [ -z "$KEY" ]; then
+    log-fail "no key specified"
+    return $EX_USAGE
+  fi
+
+  if [[ ! -d "$DOMAIN_PATH" ]]; then
+    log-fail "invalid domain at path $DOMAIN_PATH"
+    return $EX_UNAVAILABLE
+  fi
+
+  if ! rm -f "$KEY_PATH" 2>/dev/null; then
+    log-fail "unable to remove the key"
+    return $EX_NOPERM
+  fi
+
+  return 0
+}
+
+filedb-drop-domain() {
+  declare desc="completely removes a domain"
+  declare DOMAIN="$1"
+
+  if [ -z "$DOMAIN" ]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [[ ! -d "$DOMAIN_PATH" ]]; then
+    log-fail "invalid domain at path $DOMAIN_PATH"
+    return $EX_UNAVAILABLE
+  fi
+
+  if ! rm -rf "$DOMAIN_PATH" 2>/dev/null; then
+    log-fail "unable to remove the domain"
+    return $EX_NOPERM
+  fi
+
+  return 0
+}
+
+main() {
+  if [[ -z "$1" ]]; then
+    filedb-help
+    exit 0
+  fi
+
+  local cmd="$1"
+  shift 1
+
+  set +e;
+  case "$cmd" in
+    get-value)
+      filedb-get-value "$@"
+      exit_code="$?"
+      ;;
+
+    clear-value)
+      filedb-clear-value "$@"
+      exit_code="$?"
+      ;;
+
+    set-value)
+      filedb-set-value "$@"
+      exit_code="$?"
+      ;;
+
+    set-value-from-file)
+      filedb-set-value-from-file "$@"
+      exit_code="$?"
+      ;;
+
+    unset-value)
+      filedb-unset-value "$@"
+      exit_code="$?"
+      ;;
+
+    drop-domain)
+      filedb-drop-domain "$@"
+      exit_code="$?"
+      ;;
+
+    help)
+      if [[ -z $1 ]]; then
+        filedb-help
+        exit_code=$?
+      else
+        cmd-help "$@"
+        exit_code=$?
+      fi
+      ;;
+
+    -v|--version|version)
+      echo "$FILEDB_VERSION"
+      exit_code=$?
+      ;;
+
+    *)
+      log-fail "invalid command"
+      exit_code="1"
+      ;;
+  esac
+  set -e
+
+  if [[ "$exit_code" -ne "$EX_OK" ]]; then
+    exit $exit_code
+  fi
+  exit 0
+}
+
+main "$@"
