@@ -175,8 +175,7 @@ filedb-unset-value() {
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
-    log-fail "invalid domain at path $DOMAIN_PATH"
-    return $EX_UNAVAILABLE
+    return 0
   fi
 
   if ! rm -f "$KEY_PATH" 2>/dev/null; then
@@ -197,8 +196,7 @@ filedb-drop-domain() {
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
-    log-fail "invalid domain at path $DOMAIN_PATH"
-    return $EX_UNAVAILABLE
+    return 0
   fi
 
   if ! rm -rf "$DOMAIN_PATH" 2>/dev/null; then
