@@ -72,12 +72,37 @@ log-verbose() {
 filedb-help() {
   echo "filedb $FILEDB_VERSION"
   echo ""
+  fn-info "filedb-exists-value"
   fn-info "filedb-get-value"
   fn-info "filedb-clear-value"
   fn-info "filedb-set-value"
   fn-info "filedb-set-value-from-file"
   fn-info "filedb-unset-value"
   fn-info "filedb-drop-domain"
+}
+
+filedb-exists-value() {
+  declare desc="check if a value exists in a domain"
+  declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [ -z "$DOMAIN" ]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [ -z "$KEY" ]; then
+    log-fail "no key specified"
+    return $EX_USAGE
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-fail "key path $KEY_PATH does not exist"
+    return $EX_UNAVAILABLE
+  fi
+  
+  return 0
 }
 
 filedb-get-value() {
@@ -218,6 +243,11 @@ main() {
 
   set +e;
   case "$cmd" in
+    exists-value)
+      filedb-exists-value "$@"
+      exit_code="$?"
+      ;;
+
     get-value)
       filedb-get-value "$@"
       exit_code="$?"
