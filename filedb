@@ -122,8 +122,7 @@ filedb-get-value() {
   fi
 
   if [[ ! -f "$KEY_PATH" ]]; then
-    log-fail "key path $KEY_PATH does not exist"
-    return $EX_UNAVAILABLE
+    return 0
   fi
 
   cat "$KEY_PATH"
