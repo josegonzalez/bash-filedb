@@ -6,7 +6,10 @@ A command line tool for manipulating a simple, flat-file database.
 
 ```
 $ filedb
-filedb 0.0.1
+filedb 0.0.2
+
+exists-value <DOMAIN> <KEY>
+  check if a value exists in a domain
 
 get-value <DOMAIN> <KEY>
   gets a value from a domain
