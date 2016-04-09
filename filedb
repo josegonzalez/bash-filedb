@@ -25,9 +25,9 @@ cmd-help() {
   declare desc="Shows help information for a command"
   declare args="$*"
   if [[ "$args" ]]; then
-      for cmd; do true; done # last arg
-      local fn="filedb-$cmd"
-      fn-info "$fn" 1
+    for cmd; do true; done # last arg
+    local fn="filedb-$cmd"
+    fn-info "$fn" 1
   fi
 }
 
@@ -101,7 +101,7 @@ filedb-exists-value() {
     log-fail "key path $KEY_PATH does not exist"
     return $EX_UNAVAILABLE
   fi
-  
+
   return 0
 }
 
