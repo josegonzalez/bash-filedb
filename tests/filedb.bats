@@ -11,133 +11,133 @@ teardown() {
   rm -rf "$FILEDB_ROOT"
 }
 
-@test "(clear-key) a-ok" {
-  run ./filedb clear-key DOMAIN KEY
+@test "(blank) a-ok" {
+  run ./filedb blank DOMAIN KEY
   assert_success
 
   run test -f "$FILEDB_ROOT/DOMAIN/KEY"
   assert_success
 
-  run ./filedb clear-key INVALID_DOMAIN INVALID_KEY
+  run ./filedb blank INVALID_DOMAIN INVALID_KEY
   assert_success
 
-  run ./filedb clear-key DOMAIN INVALID_KEY
+  run ./filedb blank DOMAIN INVALID_KEY
   assert_success
 
   run test -f "$FILEDB_ROOT/DOMAIN/INVALID_KEY"
   assert_failure
 }
 
-@test "(clear-key) invalid execution" {
-  run ./filedb clear-key
+@test "(blank) invalid execution" {
+  run ./filedb blank
   assert_failure
 
-  run ./filedb clear-key DOMAIN
+  run ./filedb blank DOMAIN
   assert_failure
 }
 
-@test "(unset-key) a-ok" {
-  run ./filedb unset-key DOMAIN KEY
+@test "(del) a-ok" {
+  run ./filedb del DOMAIN KEY
   assert_success
 
   run test -f "$FILEDB_ROOT/DOMAIN/KEY"
   assert_failure
 
-  run ./filedb unset-key INVALID_DOMAIN KEY
+  run ./filedb del INVALID_DOMAIN KEY
   assert_success
 
-  run ./filedb unset-key DOMAIN INVALID_KEY
+  run ./filedb del DOMAIN INVALID_KEY
   assert_success
 
   run test -f "$FILEDB_ROOT/DOMAIN/INVALID_KEY"
   assert_failure
 }
 
-@test "(unset-key) invalid execution" {
-  run ./filedb unset-key
+@test "(del) invalid execution" {
+  run ./filedb del
   assert_failure
 
-  run ./filedb unset-key DOMAIN
+  run ./filedb del DOMAIN
   assert_failure
 }
 
-@test "(exists-key) a-ok" {
-  run ./filedb exists-key DOMAIN KEY
+@test "(exists) a-ok" {
+  run ./filedb exists DOMAIN KEY
   assert_success
 
-  run ./filedb exists-key INVALID_DOMAIN KEY
+  run ./filedb exists INVALID_DOMAIN KEY
   assert_failure
 
-  run ./filedb exists-key DOMAIN INVALID_KEY
-  assert_failure
-}
-
-@test "(exists-key) invalid execution" {
-  run ./filedb exists-key
-  assert_failure
-
-  run ./filedb exists-key DOMAIN
-  assert_failure
-
-  run ./filedb exists-key DOMAIN INVALID_KEY
+  run ./filedb exists DOMAIN INVALID_KEY
   assert_failure
 }
 
-@test "(get-key) a-ok" {
-  run ./filedb get-key INVALID_DOMAIN KEY
+@test "(exists) invalid execution" {
+  run ./filedb exists
+  assert_failure
+
+  run ./filedb exists DOMAIN
+  assert_failure
+
+  run ./filedb exists DOMAIN INVALID_KEY
+  assert_failure
+}
+
+@test "(get) a-ok" {
+  run ./filedb get INVALID_DOMAIN KEY
   assert_output ""
 
-  run ./filedb get-key DOMAIN KEY
+  run ./filedb get DOMAIN KEY
   assert_output "VALUE"
 
-  run ./filedb get-key DOMAIN INVALID_KEY
+  run ./filedb get DOMAIN INVALID_KEY
   assert_output ""
 }
 
-@test "(get-key) invalid execution" {
-  run ./filedb get-key
+@test "(get) invalid execution" {
+  run ./filedb get
   assert_failure
 
-  run ./filedb get-key DOMAIN
+  run ./filedb get DOMAIN
   assert_failure
 }
 
-@test "(set-key-to-value) a-ok" {
-  run ./filedb set-key-to-value DOMAIN KEY NEW-VALUE
+@test "(set) a-ok" {
+  run ./filedb set DOMAIN KEY NEW-VALUE
   assert_output ""
 
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/KEY | grep NEW-VALUE"
   assert_output "NEW-VALUE"
 
-  run ./filedb set-key-to-value DOMAIN NEW_KEY SOME-VALUE
+  run ./filedb set DOMAIN NEW_KEY SOME-VALUE
   assert_success
 
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_KEY | grep SOME-VALUE"
   assert_output "SOME-VALUE"
 
-  run ./filedb set-key-to-value DOMAIN INVALID_KEY VALUE
+  run ./filedb set DOMAIN INVALID_KEY VALUE
   assert_success
 
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/INVALID_KEY | grep VALUE"
   assert_output "VALUE"
 }
 
-@test "(set-key-to-value) invalid execution" {
-  run ./filedb set-key-to-value
+@test "(set) invalid execution" {
+  run ./filedb set
   assert_failure
 
-  run ./filedb set-key-to-value DOMAIN
+  run ./filedb set DOMAIN
   assert_failure
 }
 
-@test "(set-key-to-value-from-file) a-ok" {
+@test "(set-from-file) a-ok" {
 }
 
-@test "(drop-domain) a-ok" {
-  run ./filedb drop-domain INVALID_DOMAIN
+@test "(flush-domain) a-ok" {
+  run ./filedb flush-domain INVALID_DOMAIN
   assert_success
 
-  run ./filedb drop-domain DOMAIN
+  run ./filedb flush-domain DOMAIN
   assert_success
 
   run test -d "$FILEDB_ROOT/DOMAIN"
@@ -147,8 +147,8 @@ teardown() {
   assert_output "0"
 }
 
-@test "(drop-domain) invalid execution" {
-  run ./filedb drop-domain
+@test "(flush-domain) invalid execution" {
+  run ./filedb flush-domain
   assert_failure
 }
 

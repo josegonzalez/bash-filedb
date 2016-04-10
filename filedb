@@ -72,16 +72,73 @@ log-verbose() {
 filedb-help() {
   echo "filedb $FILEDB_VERSION"
   echo ""
-  fn-info "filedb-exists-key"
-  fn-info "filedb-get-key"
-  fn-info "filedb-clear-key"
-  fn-info "filedb-set-key-to-value"
-  fn-info "filedb-set-key-to-value-from-file"
-  fn-info "filedb-unset-key"
-  fn-info "filedb-drop-domain"
+  fn-info "filedb-blank"
+  fn-info "filedb-del"
+  fn-info "filedb-exists"
+  fn-info "filedb-get"
+  fn-info "filedb-set"
+  fn-info "filedb-set-from-file"
+
+  fn-info "filedb-flush-domain"
 }
 
-filedb-exists-key() {
+filedb-blank() {
+  declare desc="blanks a key from a domain"
+  declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -d "$DOMAIN_PATH" ]]; then
+    return 0
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    return 0
+  fi
+
+  filedb-set "$DOMAIN" "$KEY" ""
+  return $?
+}
+
+filedb-del() {
+  declare desc="delete key from domain"
+  declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -d "$DOMAIN_PATH" ]]; then
+    return 0
+  fi
+
+  if ! rm -f "$KEY_PATH" 2>/dev/null; then
+    log-fail "unable to remove the key"
+    return "$EX_NOPERM"
+  fi
+
+  return 0
+}
+
+filedb-exists() {
   declare desc="determine if a key exists in a domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
@@ -105,7 +162,7 @@ filedb-exists-key() {
   return 0
 }
 
-filedb-get-key() {
+filedb-get() {
   declare desc="gets a key from a domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
@@ -129,35 +186,7 @@ filedb-get-key() {
   return 0
 }
 
-filedb-clear-key() {
-  declare desc="clears a key from a domain"
-  declare DOMAIN="$1" KEY="$2"
-  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
-  local KEY_PATH="$DOMAIN_PATH/$KEY"
-
-  if [[ -z "$DOMAIN" ]]; then
-    log-fail "no domain specified"
-    return "$EX_USAGE"
-  fi
-
-  if [[ -z "$KEY" ]]; then
-    log-fail "no key specified"
-    return "$EX_USAGE"
-  fi
-
-  if [[ ! -d "$DOMAIN_PATH" ]]; then
-    return 0
-  fi
-
-  if [[ ! -f "$KEY_PATH" ]]; then
-    return 0
-  fi
-
-  filedb-set-key-to-value "$DOMAIN" "$KEY" ""
-  return $?
-}
-
-filedb-set-key-to-value() {
+filedb-set() {
   declare desc="sets a key to a value in a domain"
   declare DOMAIN="$1" KEY="$2" VALUE="$3"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
@@ -189,7 +218,7 @@ filedb-set-key-to-value() {
   return 0
 }
 
-filedb-set-key-to-value-from-file() {
+filedb-set-from-file() {
   declare desc="reads in a file to set a key to a value in a domain"
   declare DOMAIN="$1" KEY="$2" FILENAME="$3"
   local VALUE
@@ -199,39 +228,11 @@ filedb-set-key-to-value-from-file() {
   fi
 
   VALUE=$(cat "$FILENAME")
-  filedb-set-key-to-value "$DOMAIN" "$KEY" "$VALUE"
+  filedb-set "$DOMAIN" "$KEY" "$VALUE"
   return $?
 }
 
-filedb-unset-key() {
-  declare desc="delete key from domain"
-  declare DOMAIN="$1" KEY="$2"
-  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
-  local KEY_PATH="$DOMAIN_PATH/$KEY"
-
-  if [[ -z "$DOMAIN" ]]; then
-    log-fail "no domain specified"
-    return "$EX_USAGE"
-  fi
-
-  if [[ -z "$KEY" ]]; then
-    log-fail "no key specified"
-    return "$EX_USAGE"
-  fi
-
-  if [[ ! -d "$DOMAIN_PATH" ]]; then
-    return 0
-  fi
-
-  if ! rm -f "$KEY_PATH" 2>/dev/null; then
-    log-fail "unable to remove the key"
-    return "$EX_NOPERM"
-  fi
-
-  return 0
-}
-
-filedb-drop-domain() {
+filedb-flush-domain() {
   declare desc="removes all keys from a domain"
   declare DOMAIN="$1"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
@@ -266,38 +267,38 @@ main() {
 
   set +e;
   case "$cmd" in
-    exists-key)
-      filedb-exists-key "$@"
+    blank)
+      filedb-blank "$@"
       exit_code="$?"
       ;;
 
-    get-key)
-      filedb-get-key "$@"
+    del)
+      filedb-del "$@"
       exit_code="$?"
       ;;
 
-    clear-key)
-      filedb-clear-key "$@"
+    exists)
+      filedb-exists "$@"
       exit_code="$?"
       ;;
 
-    set-key-to-value)
-      filedb-set-key-to-value "$@"
+    get)
+      filedb-get "$@"
       exit_code="$?"
       ;;
 
-    set-key-to-value-from-file)
-      filedb-set-key-to-value-from-file "$@"
+    set)
+      filedb-set "$@"
       exit_code="$?"
       ;;
 
-    unset-key)
-      filedb-unset-key "$@"
+    set-from-file)
+      filedb-set-from-file "$@"
       exit_code="$?"
       ;;
 
-    drop-domain)
-      filedb-drop-domain "$@"
+    flush-domain)
+      filedb-flush-domain "$@"
       exit_code="$?"
       ;;
 
