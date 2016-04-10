@@ -69,7 +69,7 @@ log-verbose() {
   fi
 }
 
-filedb-help() {
+fn-help() {
   echo "filedb $FILEDB_VERSION"
   echo ""
   fn-info "filedb-blank"
@@ -258,7 +258,7 @@ filedb-flush-domain() {
 
 main() {
   if [[ -z "$1" ]]; then
-    filedb-help
+    fn-help
     exit 0
   fi
 
@@ -304,7 +304,7 @@ main() {
 
     help)
       if [[ -z $1 ]]; then
-        filedb-help
+        fn-help
         exit_code=$?
       else
         cmd-help "$@"
