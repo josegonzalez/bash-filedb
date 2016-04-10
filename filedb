@@ -279,12 +279,12 @@ main() {
       exit_code="$?"
       ;;
 
-    set-key)
+    set-key-to-value)
       filedb-set-key-to-value "$@"
       exit_code="$?"
       ;;
 
-    set-key-from-file)
+    set-key-to-value-from-file)
       filedb-set-key-to-value-from-file "$@"
       exit_code="$?"
       ;;
