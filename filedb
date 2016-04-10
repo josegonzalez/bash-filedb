@@ -89,17 +89,17 @@ filedb-exists-key() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ ! -f "$KEY_PATH" ]]; then
     log-fail "key path $KEY_PATH does not exist"
-    return $EX_UNAVAILABLE
+    return "$EX_UNAVAILABLE"
   fi
 
   return 0
@@ -113,12 +113,12 @@ filedb-get-key() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ ! -f "$KEY_PATH" ]]; then
@@ -137,12 +137,12 @@ filedb-clear-key() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
@@ -165,23 +165,23 @@ filedb-set-key-to-value() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if ! mkdir -p "$DOMAIN_PATH" 2>/dev/null; then
     log-fail "unable to create the domain at $DOMAIN_PATH"
-    return $EX_UNAVAILABLE
+    return "$EX_UNAVAILABLE"
   fi
 
   touch "$KEY_PATH" || true
   if [[ ! -f "$KEY_PATH" ]]; then
     log-fail "key path $KEY_PATH does not exist"
-    return $EX_UNAVAILABLE
+    return "$EX_UNAVAILABLE"
   fi
 
   echo "$VALUE" > "$KEY_PATH"
@@ -195,7 +195,7 @@ filedb-set-key-to-value-from-file() {
   local VALUE
 
   if [[ ! -f "$FILENAME" ]]; then
-    return $EX_IOERR
+    return "$EX_IOERR"
   fi
 
   VALUE=$(cat "$FILENAME")
@@ -211,12 +211,12 @@ filedb-unset-key() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
@@ -225,7 +225,7 @@ filedb-unset-key() {
 
   if ! rm -f "$KEY_PATH" 2>/dev/null; then
     log-fail "unable to remove the key"
-    return $EX_NOPERM
+    return "$EX_NOPERM"
   fi
 
   return 0
@@ -238,7 +238,7 @@ filedb-drop-domain() {
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
-    return $EX_USAGE
+    return "$EX_USAGE"
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
@@ -249,7 +249,7 @@ filedb-drop-domain() {
   # shellcheck disable=SC2086
   if ! rm -rf $DOMAIN_PATH/* ; then
     log-fail "unable to remove the domain"
-    return $EX_NOPERM
+    return "$EX_NOPERM"
   fi
 
   return 0
