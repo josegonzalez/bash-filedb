@@ -46,6 +46,35 @@ fn-desc() {
   eval "$(type "$1" | grep desc | head -1)"; echo $desc
 }
 
+fn-execute() {
+  declare desc="Executes a function retrieved via reflection"
+  declare CMD="$1"
+  local executed=false exit_code=1
+  shift 1
+
+  for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
+    if [[ "$fn" == "$COMMAND_FUNCTION_PREFIX-$CMD" ]]; then
+      local UNIMPLEMENTED=false
+      eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
+
+      if [[ "$UNIMPLEMENTED" == "false" ]]; then
+        local executed=true
+        $fn "$@"
+        exit_code="$?"
+      fi
+
+      break
+    fi
+  done
+
+  if [[ $executed == "false" ]]; then
+    log-fail "invalid command"
+    exit_code="1"
+  fi
+
+  return $exit_code
+}
+
 fn-help() {
   declare desc="shows help information"
   echo "$COMMAND_NAME $COMMAND_VERSION"
@@ -289,26 +318,8 @@ main() {
       ;;
 
     *)
-      local executed=false
-      for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
-        if [[ "$fn" == "$COMMAND_FUNCTION_PREFIX-$CMD" ]]; then
-          local UNIMPLEMENTED=false
-          eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
-
-          if [[ "$UNIMPLEMENTED" == "false" ]]; then
-            local executed=true
-            $fn "$@"
-            exit_code="$?"
-          fi
-
-          break
-        fi
-      done
-
-      if [[ $executed == "false" ]]; then
-        log-fail "invalid command"
-        exit_code="1"
-      fi
+      fn-execute "$CMD" "$@"
+      exit_code=$?
       ;;
   esac
   set -e
