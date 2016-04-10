@@ -87,12 +87,12 @@ filedb-exists-key() {
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
 
-  if [ -z "$DOMAIN" ]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return $EX_USAGE
   fi
 
-  if [ -z "$KEY" ]; then
+  if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
     return $EX_USAGE
   fi
@@ -111,12 +111,12 @@ filedb-get-key() {
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
 
-  if [ -z "$DOMAIN" ]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return $EX_USAGE
   fi
 
-  if [ -z "$KEY" ]; then
+  if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
     return $EX_USAGE
   fi
@@ -142,12 +142,12 @@ filedb-set-key-to-value() {
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
 
-  if [ -z "$DOMAIN" ]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return $EX_USAGE
   fi
 
-  if [ -z "$KEY" ]; then
+  if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
     return $EX_USAGE
   fi
@@ -188,12 +188,12 @@ filedb-unset-key() {
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
 
-  if [ -z "$DOMAIN" ]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return $EX_USAGE
   fi
 
-  if [ -z "$KEY" ]; then
+  if [[ -z "$KEY" ]]; then
     log-fail "no key specified"
     return $EX_USAGE
   fi
@@ -214,7 +214,7 @@ filedb-drop-domain() {
   declare desc="completely removes a domain"
   declare DOMAIN="$1"
 
-  if [ -z "$DOMAIN" ]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return $EX_USAGE
   fi
