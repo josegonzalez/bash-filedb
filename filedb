@@ -82,7 +82,7 @@ filedb-help() {
 }
 
 filedb-exists-key() {
-  declare desc="check if a key exists in a domain"
+  declare desc="determine if a key exists in a domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -183,7 +183,7 @@ filedb-set-key-to-value-from-file() {
 }
 
 filedb-unset-key() {
-  declare desc="completely removes a key from domain"
+  declare desc="delete key from domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -211,7 +211,7 @@ filedb-unset-key() {
 }
 
 filedb-drop-domain() {
-  declare desc="completely removes a domain"
+  declare desc="removes all keys from a domain"
   declare DOMAIN="$1"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
 

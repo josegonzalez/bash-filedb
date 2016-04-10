@@ -9,7 +9,7 @@ $ filedb
 filedb 0.1.0
 
 exists-key <DOMAIN> <KEY>
-  check if a key exists in a domain
+  determine if a key exists in a domain
 
 get-key <DOMAIN> <KEY>
   gets a key from a domain
@@ -24,8 +24,8 @@ set-key-to-value-from-file <DOMAIN> <KEY> <FILENAME>
   reads in a file to set a key to a value in a domain
 
 unset-key <DOMAIN> <KEY>
-  completely removes a key from domain
+  delete key from domain
 
 drop-domain <DOMAIN>
-  completely removes a domain
+  removes all keys from a domain
 ```
