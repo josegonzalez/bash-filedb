@@ -46,6 +46,20 @@ fn-desc() {
   eval "$(type "$1" | grep desc | head -1)"; echo $desc
 }
 
+fn-help() {
+  declare desc="shows help information"
+  echo "$COMMAND_NAME $COMMAND_VERSION"
+  echo ""
+
+  for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
+    local UNIMPLEMENTED=false
+    eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
+    if [[ "$UNIMPLEMENTED" == "false" ]]; then
+      fn-info "$fn"
+    fi
+  done
+}
+
 fn-info() {
   declare desc="Inspects a function"
   declare fn="$1" showsource="$2"
@@ -69,20 +83,6 @@ log-verbose() {
   if [[ ! -z "$FILEDB_VERBOSE_OUTPUT" ]]; then
     echo "$@"
   fi
-}
-
-fn-help() {
-  declare desc="shows help information"
-  echo "$COMMAND_NAME $COMMAND_VERSION"
-  echo ""
-
-  for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
-    local UNIMPLEMENTED=false
-    eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
-    if [[ "$UNIMPLEMENTED" == "false" ]]; then
-      fn-info "$fn"
-    fi
-  done
 }
 
 filedb-blank() {
