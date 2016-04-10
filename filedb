@@ -72,17 +72,17 @@ log-verbose() {
 filedb-help() {
   echo "filedb $FILEDB_VERSION"
   echo ""
-  fn-info "filedb-exists-value"
-  fn-info "filedb-get-value"
-  fn-info "filedb-clear-value"
-  fn-info "filedb-set-value"
-  fn-info "filedb-set-value-from-file"
-  fn-info "filedb-unset-value"
+  fn-info "filedb-exists-key"
+  fn-info "filedb-get-key"
+  fn-info "filedb-clear-key"
+  fn-info "filedb-set-key-to-value"
+  fn-info "filedb-set-key-to-value-from-file"
+  fn-info "filedb-unset-key"
   fn-info "filedb-drop-domain"
 }
 
-filedb-exists-value() {
-  declare desc="check if a value exists in a domain"
+filedb-exists-key() {
+  declare desc="check if a key exists in a domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -105,8 +105,8 @@ filedb-exists-value() {
   return 0
 }
 
-filedb-get-value() {
-  declare desc="gets a value from a domain"
+filedb-get-key() {
+  declare desc="gets a key from a domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -129,15 +129,15 @@ filedb-get-value() {
   return 0
 }
 
-filedb-clear-value() {
-  declare desc="clears a value from a domain"
+filedb-clear-key() {
+  declare desc="clears a key from a domain"
   declare DOMAIN="$1" KEY="$2"
-  filedb-set-value "$DOMAIN" "$KEY" ""
+  filedb-set-value-from-file "$DOMAIN" "$KEY" ""
   return $?
 }
 
-filedb-set-value() {
-  declare desc="sets a value in a domain"
+filedb-set-key-to-value() {
+  declare desc="sets a key to a value in a domain"
   declare DOMAIN="$1" KEY="$2" VALUE="$3"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -168,8 +168,8 @@ filedb-set-value() {
   return 0
 }
 
-filedb-set-value-from-file() {
-  declare desc="reads in a file to set a value in a domain"
+filedb-set-key-to-value-from-file() {
+  declare desc="reads in a file to set a key to a value in a domain"
   declare DOMAIN="$1" KEY="$2" FILENAME="$3"
   local VALUE
 
@@ -178,12 +178,12 @@ filedb-set-value-from-file() {
   fi
 
   VALUE=$(cat "$FILENAME")
-  filedb-set-value "$DOMAIN" "$KEY" "$VALUE"
+  filedb-set-value-from-file "$DOMAIN" "$KEY" "$VALUE"
   return $?
 }
 
-filedb-unset-value() {
-  declare desc="completely removes a value from domain"
+filedb-unset-key() {
+  declare desc="completely removes a key from domain"
   declare DOMAIN="$1" KEY="$2"
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
@@ -242,33 +242,33 @@ main() {
 
   set +e;
   case "$cmd" in
-    exists-value)
-      filedb-exists-value "$@"
+    exists-key)
+      filedb-exists-key "$@"
       exit_code="$?"
       ;;
 
-    get-value)
-      filedb-get-value "$@"
+    get-key)
+      filedb-get-key "$@"
       exit_code="$?"
       ;;
 
-    clear-value)
-      filedb-clear-value "$@"
+    clear-key)
+      filedb-clear-key "$@"
       exit_code="$?"
       ;;
 
-    set-value)
-      filedb-set-value "$@"
+    set-key)
+      filedb-set-key-to-value "$@"
       exit_code="$?"
       ;;
 
-    set-value-from-file)
-      filedb-set-value-from-file "$@"
+    set-key-from-file)
+      filedb-set-key-to-value-from-file "$@"
       exit_code="$?"
       ;;
 
-    unset-value)
-      filedb-unset-value "$@"
+    unset-key)
+      filedb-unset-key "$@"
       exit_code="$?"
       ;;
 

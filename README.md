@@ -8,23 +8,23 @@ A command line tool for manipulating a simple, flat-file database.
 $ filedb
 filedb 0.0.3
 
-exists-value <DOMAIN> <KEY>
-  check if a value exists in a domain
+exists-key <DOMAIN> <KEY>
+  check if a key exists in a domain
 
-get-value <DOMAIN> <KEY>
-  gets a value from a domain
+get-key <DOMAIN> <KEY>
+  gets a key from a domain
 
-clear-value <DOMAIN> <KEY>
-  clears a value from a domain
+clear-key <DOMAIN> <KEY>
+  clears a key from a domain
 
-set-value <DOMAIN> <KEY> <VALUE>
-  sets a value in a domain
+set-key-to-value <DOMAIN> <KEY> <VALUE>
+  sets a key to a value in a domain
 
-set-value-from-file <DOMAIN> <KEY> <FILENAME>
-  reads in a file to set a value in a domain
+set-key-to-value-from-file <DOMAIN> <KEY> <FILENAME>
+  reads in a file to set a key to a value in a domain
 
-unset-value <DOMAIN> <KEY>
-  completely removes a value from domain
+unset-key <DOMAIN> <KEY>
+  completely removes a key from domain
 
 drop-domain <DOMAIN>
   completely removes a domain
