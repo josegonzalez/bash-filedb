@@ -132,7 +132,7 @@ filedb-get-key() {
 filedb-clear-key() {
   declare desc="clears a key from a domain"
   declare DOMAIN="$1" KEY="$2"
-  filedb-set-value-from-file "$DOMAIN" "$KEY" ""
+  filedb-set-key-to-value "$DOMAIN" "$KEY" ""
   return $?
 }
 
@@ -178,7 +178,7 @@ filedb-set-key-to-value-from-file() {
   fi
 
   VALUE=$(cat "$FILENAME")
-  filedb-set-value-from-file "$DOMAIN" "$KEY" "$VALUE"
+  filedb-set-key-to-value "$DOMAIN" "$KEY" "$VALUE"
   return $?
 }
 
@@ -213,6 +213,7 @@ filedb-unset-key() {
 filedb-drop-domain() {
   declare desc="completely removes a domain"
   declare DOMAIN="$1"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
 
   if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
