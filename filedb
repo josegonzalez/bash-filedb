@@ -70,6 +70,7 @@ log-verbose() {
 }
 
 fn-help() {
+  declare desc="shows help information"
   echo "filedb $FILEDB_VERSION"
   echo ""
   fn-info "filedb-blank"
