@@ -245,7 +245,9 @@ filedb-drop-domain() {
     return 0
   fi
 
-  if ! rm -rf "$DOMAIN_PATH" 2>/dev/null; then
+  # shellcheck disable=SC2115
+  # shellcheck disable=SC2086
+  if ! rm -rf $DOMAIN_PATH/* ; then
     log-fail "unable to remove the domain"
     return $EX_NOPERM
   fi
