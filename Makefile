@@ -30,8 +30,6 @@ unit-tests:
 	@echo running unit tests...
 	@$(QUIET) bats tests
 
-setup:
-	bash tests/setup.sh
-	$(MAKE) ci-dependencies
+setup: ci-dependencies
 
 test: setup lint unit-tests
