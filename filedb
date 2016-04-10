@@ -102,6 +102,23 @@ fn-info() {
   fi
 }
 
+fn-unimplemented() {
+  declare desc="outputs unimplemented methods"
+  local fn
+
+  echo "$COMMAND_NAME unimplemented functions:"
+  echo ""
+  for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
+    local UNIMPLEMENTED=false
+    eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
+
+    if [[ "$UNIMPLEMENTED" == "true" ]]; then
+      echo "  $fn"
+    fi
+  done
+  return 0
+}
+
 log-fail() {
   declare desc="log fail formatter"
   echo "$@" 1>&2
@@ -302,6 +319,11 @@ main() {
 
   set +e;
   case "$CMD" in
+    unimplemented)
+      fn-unimplemented "$@"
+      exit_code=0
+      ;;
+
     help)
       if [[ -z $1 ]]; then
         fn-help
