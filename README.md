@@ -1,4 +1,4 @@
-# filedb
+# filedb [![Travis](https://img.shields.io/travis/josegonzalez/bash-filedb.svg?style=flat-square)]()
 
 A command line tool for manipulating a simple, flat-file database.
 
