@@ -2,7 +2,9 @@
 set -eo pipefail; [[ $TRACE ]] && set -x
 
 readonly FILEDB_ROOT="${FILEDB_ROOT:-/var/lib/filedb}"
-readonly FILEDB_VERSION=0.2.0
+readonly COMMAND_VERSION=0.2.0
+readonly COMMAND_FUNCTION_PREFIX="filedb"
+readonly COMMAND_NAME="filedb"
 
 readonly EX_OK=0
 readonly EX_USAGE=64        # command line usage error
@@ -26,7 +28,7 @@ cmd-help() {
   declare args="$*"
   if [[ "$args" ]]; then
     for cmd; do true; done # last arg
-    local fn="filedb-$cmd"
+    local fn="$COMMAND_FUNCTION_PREFIX-$cmd"
     fn-info "$fn" 1
   fi
 }
@@ -47,7 +49,7 @@ fn-desc() {
 fn-info() {
   declare desc="Inspects a function"
   declare fn="$1" showsource="$2"
-  local fn_name="${1//filedb-/}"
+  local fn_name="${1//$COMMAND_FUNCTION_PREFIX-/}"
   echo "$fn_name $(fn-args "$fn")"
   echo "  $(fn-desc "$fn")"
   echo
@@ -71,10 +73,10 @@ log-verbose() {
 
 fn-help() {
   declare desc="shows help information"
-  echo "filedb $FILEDB_VERSION"
+  echo "$COMMAND_NAME $COMMAND_VERSION"
   echo ""
 
-  for fn in $(declare -F | grep -oEi "filedb-([a-z-]+)"); do
+  for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
     local UNIMPLEMENTED=false
     eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
     if [[ "$UNIMPLEMENTED" == "false" ]]; then
@@ -288,8 +290,8 @@ main() {
 
     *)
       local executed=false
-      for fn in $(declare -F | grep -oEi "filedb-([a-z-]+)"); do
-        if [[ "$fn" == "filedb-$CMD" ]]; then
+      for fn in $(declare -F | grep -oEi "$COMMAND_FUNCTION_PREFIX-([a-z-]+)"); do
+        if [[ "$fn" == "$COMMAND_FUNCTION_PREFIX-$CMD" ]]; then
           local UNIMPLEMENTED=false
           eval "$(type "$fn" | grep UNIMPLEMENTED | head -1)";
 
