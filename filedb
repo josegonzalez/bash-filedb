@@ -148,10 +148,12 @@ filedb-blank() {
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
+    log-verbose "invalid domain path"
     return 0
   fi
 
   if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
     return 0
   fi
 
@@ -176,6 +178,7 @@ filedb-del() {
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
+    log-verbose "invalid domain path"
     return 0
   fi
 
@@ -228,6 +231,7 @@ filedb-get() {
   fi
 
   if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
     return 0
   fi
 
@@ -292,6 +296,7 @@ filedb-flush-domain() {
   fi
 
   if [[ ! -d "$DOMAIN_PATH" ]]; then
+    log-verbose "invalid domain path"
     return 0
   fi
 
