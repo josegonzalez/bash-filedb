@@ -17,6 +17,9 @@ del <DOMAIN> <KEY>
 exists <DOMAIN> <KEY>
   determine if a key exists in a domain
 
+flush-domain <DOMAIN>
+  removes all keys from a domain
+
 get <DOMAIN> <KEY>
   gets a key from a domain
 
@@ -26,6 +29,4 @@ set <DOMAIN> <KEY> <VALUE>
 set-from-file <DOMAIN> <KEY> <FILENAME>
   reads in a file to set a key to a value in a domain
 
-flush-domain <DOMAIN>
-  removes all keys from a domain
 ```
