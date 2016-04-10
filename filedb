@@ -132,6 +132,27 @@ filedb-get-key() {
 filedb-clear-key() {
   declare desc="clears a key from a domain"
   declare DOMAIN="$1" KEY="$2"
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return $EX_USAGE
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return $EX_USAGE
+  fi
+
+  if [[ ! -d "$DOMAIN_PATH" ]]; then
+    return 0
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    return 0
+  fi
+
   filedb-set-key-to-value "$DOMAIN" "$KEY" ""
   return $?
 }
