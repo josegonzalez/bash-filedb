@@ -6,7 +6,7 @@ A command line tool for manipulating a simple, flat-file database.
 
 ```
 $ filedb
-filedb 0.2.1
+filedb 0.3.0
 
 blank <DOMAIN> <KEY>
   blanks a key from a domain

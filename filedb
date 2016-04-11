@@ -4,7 +4,7 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 readonly FILEDB_ROOT="${FILEDB_ROOT:-/var/lib/filedb}"
 readonly COMMAND_FUNCTION_PREFIX="filedb"
 readonly COMMAND_NAME="filedb"
-readonly COMMAND_VERSION=0.2.1
+readonly COMMAND_VERSION=0.3.0
 
 readonly EX_OK=0
 readonly EX_USAGE=64        # command line usage error
