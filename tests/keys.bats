@@ -132,7 +132,11 @@ teardown() {
 }
 
 @test "[keys] (set-from-file) a-ok" {
-  skip "Nothing to do"
+  skip "untested"
+}
+
+@test "[keys] (set-from-file) invalid execution" {
+  skip "untested"
 }
 
 @test "[keys] (flush-domain) a-ok" {
