@@ -444,12 +444,17 @@ filedb-lpush() {
     return "$EX_UNAVAILABLE"
   fi
 
-  touch "$KEY_PATH" || true
+  LPUSH_TMP_WORK_DIR=$(mktemp -d /tmp/filedb_lset.XXXXX)
+  LPUSH_TMP_FILE=$(mktemp --tmpdir="${LPUSH_TMP_WORK_DIR}" "lpush.key.XXXXXX")
+  trap 'rm -rf $LPUSH_TMP_WORK_DIR $LPUSH_TMP_FILE > /dev/null' RETURN INT TERM EXIT
 
+  touch "$KEY_PATH" || true
   local VALUE
   for VALUE in "${VALUES[@]}"; do
-    echo -e "$VALUE" | cat - "$KEY_PATH" | sponge "$KEY_PATH"
+    echo "$VALUE" >> "$LPUSH_TMP_FILE"
   done
+  cat "$KEY_PATH" >> "$LPUSH_TMP_FILE"
+  cp -f "$LPUSH_TMP_FILE" "$KEY_PATH"
   wc -l "$KEY_PATH" | cut -d' ' -f1
   return 0
 }
@@ -549,7 +554,7 @@ filedb-rpush() {
   local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
   local KEY_PATH="$DOMAIN_PATH/$KEY"
 
-   if [[ -z "$DOMAIN" ]]; then
+  if [[ -z "$DOMAIN" ]]; then
     log-fail "no domain specified"
     return "$EX_USAGE"
   fi
@@ -559,10 +564,15 @@ filedb-rpush() {
     return "$EX_USAGE"
   fi
 
+  if ! mkdir -p "$DOMAIN_PATH" 2>/dev/null; then
+    log-fail "unable to create the domain at $DOMAIN_PATH"
+    return "$EX_UNAVAILABLE"
+  fi
+
   touch "$KEY_PATH" || true
   local VALUE
   for VALUE in "${VALUES[@]}"; do
-    echo -e "$VALUE" | cat - "$KEY_PATH" | sponge "$KEY_PATH"
+    echo -e "$VALUE" >> "$KEY_PATH"
   done
   wc -l "$KEY_PATH" | cut -d' ' -f1
   return 0

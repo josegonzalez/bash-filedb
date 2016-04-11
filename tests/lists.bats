@@ -119,12 +119,16 @@ teardown() {
   assert_output "1"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | grep SIXTH_LINE"
   assert_output "SIXTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/NEW_LISTS"
+  assert_output "SIXTH_LINE"
 
   run ./filedb lpush DOMAIN LISTS SIXTH_LINE
   assert_output "6"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "6"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "SIXTH_LINE"
 
   run ./filedb lpush DOMAIN LISTS SEVENTH_LINE
@@ -133,12 +137,16 @@ teardown() {
   assert_output "7"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SEVENTH_LINE"
   assert_output "SEVENTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
+  assert_output "SEVENTH_LINE"
 
   run ./filedb lpush DOMAIN LISTS EIGTH_LINE
   assert_output "8"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "8"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep EIGTH_LINE"
+  assert_output "EIGTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "EIGTH_LINE"
 
   run ./filedb lpush DOMAIN LISTS NINTH_LINE
@@ -147,12 +155,16 @@ teardown() {
   assert_output "9"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep NINTH_LINE"
   assert_output "NINTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
+  assert_output "NINTH_LINE"
 
   run ./filedb lpush DOMAIN LISTS TENTH_LINE
   assert_output "10"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "10"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep TENTH_LINE"
+  assert_output "TENTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "TENTH_LINE"
 }
 
@@ -277,12 +289,16 @@ teardown() {
   assert_output "1"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | grep SIXTH_LINE"
   assert_output "SIXTH_LINE"
+  run sed '1q;d' "$FILEDB_ROOT/DOMAIN/NEW_LISTS"
+  assert_output "SIXTH_LINE"
 
   run ./filedb rpush DOMAIN LISTS SIXTH_LINE
   assert_output "6"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "6"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+  run sed '6q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "SIXTH_LINE"
 
   run ./filedb rpush DOMAIN LISTS SEVENTH_LINE
@@ -291,12 +307,16 @@ teardown() {
   assert_output "7"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SEVENTH_LINE"
   assert_output "SEVENTH_LINE"
+  run sed '7q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
+  assert_output "SEVENTH_LINE"
 
   run ./filedb rpush DOMAIN LISTS EIGTH_LINE
   assert_output "8"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "8"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep EIGTH_LINE"
+  assert_output "EIGTH_LINE"
+  run sed '8q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "EIGTH_LINE"
 
   run ./filedb rpush DOMAIN LISTS NINTH_LINE
@@ -305,12 +325,16 @@ teardown() {
   assert_output "9"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep NINTH_LINE"
   assert_output "NINTH_LINE"
+  run sed '9q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
+  assert_output "NINTH_LINE"
 
   run ./filedb rpush DOMAIN LISTS TENTH_LINE
   assert_output "10"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
   assert_output "10"
   run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep TENTH_LINE"
+  assert_output "TENTH_LINE"
+  run sed '10q;d' "$FILEDB_ROOT/DOMAIN/LISTS"
   assert_output "TENTH_LINE"
 }
 
