@@ -12,6 +12,11 @@ THIRD_LINE
 FOURTH_LINE
 FIFTH_LINE
 EOF
+
+  cat << EOF > "$FILEDB_ROOT/DOMAIN/LISTS-TWO"
+FIRST_LINE
+SECOND_LINE
+EOF
 }
 
 teardown() {
@@ -64,7 +69,11 @@ teardown() {
 }
 
 @test "[lists] (llen) a-ok" {
-  skip "untested"
+  run ./filedb llen DOMAIN LISTS
+  assert_output "5"
+
+  run ./filedb llen DOMAIN LISTS-TWO
+  assert_output "2"
 }
 
 @test "[lists] (llen) invalid execution" {
@@ -76,7 +85,23 @@ teardown() {
 }
 
 @test "[lists] (lpop) a-ok" {
-  skip "untested"
+  run ./filedb lpop DOMAIN LISTS
+  assert_output "FIRST_LINE"
+
+  run ./filedb lpop DOMAIN LISTS
+  assert_output "SECOND_LINE"
+
+  run ./filedb lpop DOMAIN LISTS
+  assert_output "THIRD_LINE"
+
+  run ./filedb lpop DOMAIN LISTS
+  assert_output "FOURTH_LINE"
+
+  run ./filedb lpop DOMAIN LISTS
+  assert_output "FIFTH_LINE"
+
+  run ./filedb lpop DOMAIN LISTS
+  assert_output ""
 }
 
 @test "[lists] (lpop) invalid execution" {
@@ -88,7 +113,47 @@ teardown() {
 }
 
 @test "[lists] (lpush) a-ok" {
-  skip "untested"
+  run ./filedb lpush DOMAIN NEW_LISTS SIXTH_LINE
+  assert_output "1"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | wc -l"
+  assert_output "1"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+
+  run ./filedb lpush DOMAIN LISTS SIXTH_LINE
+  assert_output "6"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "6"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+
+  run ./filedb lpush DOMAIN LISTS SEVENTH_LINE
+  assert_output "7"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "7"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SEVENTH_LINE"
+  assert_output "SEVENTH_LINE"
+
+  run ./filedb lpush DOMAIN LISTS EIGTH_LINE
+  assert_output "8"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "8"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep EIGTH_LINE"
+  assert_output "EIGTH_LINE"
+
+  run ./filedb lpush DOMAIN LISTS NINTH_LINE
+  assert_output "9"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "9"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep NINTH_LINE"
+  assert_output "NINTH_LINE"
+
+  run ./filedb lpush DOMAIN LISTS TENTH_LINE
+  assert_output "10"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "10"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep TENTH_LINE"
+  assert_output "TENTH_LINE"
 }
 
 @test "[lists] (lpush) invalid execution" {
@@ -108,7 +173,45 @@ teardown() {
 }
 
 @test "[lists] (lset) a-ok" {
-  skip "untested"
+  run ./filedb lset DOMAIN LISTS 1 1-line
+  assert_success
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep 1-line"
+  assert_output "1-line"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep FIRST_LINE"
+  assert_failure
+
+  run ./filedb lset DOMAIN LISTS 2 2-line
+  assert_success
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep 2-line"
+  assert_output "2-line"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SECOND_LINE"
+  assert_failure
+
+  run ./filedb lset DOMAIN LISTS 3 3-line
+  assert_success
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep 3-line"
+  assert_output "3-line"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep THIRD_LINE"
+  assert_failure
+
+  run ./filedb lset DOMAIN LISTS 4 4-line
+  assert_success
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep 4-line"
+  assert_output "4-line"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep FOURTH_LINE"
+  assert_failure
+
+  run ./filedb lset DOMAIN LISTS 5 5-line
+  assert_success
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep 5-line"
+  assert_output "5-line"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep FIFTH_LINE"
+  assert_failure
 }
 
 @test "[lists] (lset) invalid execution" {
@@ -122,7 +225,41 @@ teardown() {
 }
 
 @test "[lists] (rpop) a-ok" {
-  skip "untested"
+  run ./filedb rpop DOMAIN LISTS
+  assert_output "FIFTH_LINE"
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "4"
+
+  run ./filedb rpop DOMAIN LISTS
+  assert_output "FOURTH_LINE"
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "3"
+
+  run ./filedb rpop DOMAIN LISTS
+  assert_output "THIRD_LINE"
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "2"
+
+  run ./filedb rpop DOMAIN LISTS
+  assert_output "SECOND_LINE"
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "1"
+
+  run ./filedb rpop DOMAIN LISTS
+  assert_output "FIRST_LINE"
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "0"
+
+  run ./filedb rpop DOMAIN LISTS
+  assert_output ""
+
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "0"
 }
 
 @test "[lists] (rpop) invalid execution" {
@@ -134,7 +271,47 @@ teardown() {
 }
 
 @test "[lists] (rpush) a-ok" {
-  skip "untested"
+  run ./filedb rpush DOMAIN NEW_LISTS SIXTH_LINE
+  assert_output "1"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | wc -l"
+  assert_output "1"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/NEW_LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+
+  run ./filedb rpush DOMAIN LISTS SIXTH_LINE
+  assert_output "6"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "6"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SIXTH_LINE"
+  assert_output "SIXTH_LINE"
+
+  run ./filedb rpush DOMAIN LISTS SEVENTH_LINE
+  assert_output "7"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "7"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep SEVENTH_LINE"
+  assert_output "SEVENTH_LINE"
+
+  run ./filedb rpush DOMAIN LISTS EIGTH_LINE
+  assert_output "8"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "8"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep EIGTH_LINE"
+  assert_output "EIGTH_LINE"
+
+  run ./filedb rpush DOMAIN LISTS NINTH_LINE
+  assert_output "9"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "9"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep NINTH_LINE"
+  assert_output "NINTH_LINE"
+
+  run ./filedb rpush DOMAIN LISTS TENTH_LINE
+  assert_output "10"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | wc -l"
+  assert_output "10"
+  run /bin/bash -c "cat $FILEDB_ROOT/DOMAIN/LISTS | grep TENTH_LINE"
+  assert_output "TENTH_LINE"
 }
 
 @test "[lists] (rpush) invalid execution" {

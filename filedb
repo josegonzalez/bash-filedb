@@ -408,6 +408,9 @@ filedb-lpop() {
   fi
 
   LENGTH="$(filedb-llen "$DOMAIN" "$KEY")"
+  if [[ "$LENGTH" -gt 0 ]]; then
+    head -n 1 "$KEY_PATH"
+  fi
   if [[ "$LENGTH" == "" ]] || [[ "$LENGTH" -eq 0 ]] || [[ "$LENGTH" -eq 1 ]]; then
     rm -f "$KEY_PATH"
     touch "$KEY_PATH" || true
@@ -526,9 +529,6 @@ filedb-rpop() {
   fi
 
   tail -n 1 "$KEY_PATH"
-  # shellcheck disable=SC2005
-  # shellcheck disable=SC2094
-  echo "$(head -n -1 "$KEY_PATH")"
   LENGTH="$(filedb-llen "$DOMAIN" "$KEY")"
   if [[ "$LENGTH" == "" ]] || [[ "$LENGTH" -eq 0 ]] || [[ "$LENGTH" -eq 1 ]]; then
     rm -f "$KEY_PATH"
