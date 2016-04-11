@@ -310,6 +310,262 @@ filedb-flush-domain() {
   return 0
 }
 
+filedb-lindex() {
+  declare desc="get an element from a list by index"
+  declare DOMAIN="$1" KEY="$2" INDEX="$3"
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+  local value
+  local count
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
+    return 0
+  fi
+
+  value=$(cat "$KEY_PATH")
+  count=$(wc -l "$KEY_PATH" | cut -d' ' -f1)
+
+  if [[ "$INDEX" -lt 0 ]]; then
+    INDEX=$((count + INDEX))
+  fi
+
+  if [[ "$INDEX" -lt 0 ]] || [[ "$INDEX" -gt "$count" ]]; then
+    log-verbose "invalid index"
+    return 0
+  fi
+
+  INDEX=$((INDEX + 1))
+  echo "$value" | sed "${INDEX}q;d"
+  return 0
+}
+
+filedb-linsert() {
+  declare desc="insert an element before or after another element in a list"
+  # shellcheck disable=SC2034
+  declare DOMAIN="$1" BEFORE_AFTER="$2" PIVOT="$3" VALUE="$4"
+  declare UNIMPLEMENTED=true
+}
+
+filedb-llen() {
+  declare desc="get the length of a list"
+  declare DOMAIN="$1" KEY="$2"
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
+    return 0
+  fi
+
+  wc -l "$KEY_PATH" | cut -d' ' -f1
+  return 0
+}
+
+filedb-lpop() {
+  declare desc="remove and get the first element in a list"
+  declare DOMAIN="$1" KEY="$2"
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+  local LENGTH
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
+    return 0
+  fi
+
+  LENGTH="$(filedb-llen "$DOMAIN" "$KEY")"
+  if [[ "$LENGTH" == "" ]] || [[ "$LENGTH" -eq 0 ]] || [[ "$LENGTH" -eq 1 ]]; then
+    rm -f "$KEY_PATH"
+    touch "$KEY_PATH" || true
+  else
+    # shellcheck disable=SC2005
+    echo "$(tail -n +2 "$KEY_PATH")" > "$KEY_PATH"
+  fi
+  return 0
+}
+
+filedb-lpush() {
+  declare desc="prepend one or multiple values to a list"
+  declare DOMAIN="$1" KEY="$2" VALUES=("${@:3}")
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+  if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if ! mkdir -p "$DOMAIN_PATH" 2>/dev/null; then
+    log-fail "unable to create the domain at $DOMAIN_PATH"
+    return "$EX_UNAVAILABLE"
+  fi
+
+  touch "$KEY_PATH" || true
+
+  local VALUE
+  for VALUE in "${VALUES[@]}"; do
+    echo -e "$VALUE" | cat - "$KEY_PATH" | sponge "$KEY_PATH"
+  done
+  wc -l "$KEY_PATH" | cut -d' ' -f1
+  return 0
+}
+
+filedb-lrem() {
+  declare desc="remove elements from a list"
+  # shellcheck disable=SC2034
+  declare DOMAIN="$1" KEY="$2" COUNT="$3" VALUE="$4"
+  declare UNIMPLEMENTED=true
+}
+
+filedb-lset() {
+  declare desc="set the value of an element in a list by its index"
+  declare DOMAIN="$1" KEY="$2" INDEX="$3" VALUE="$4"
+  local count i LSET_TMP_WORK_DIR LSET_TMP_FILE
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+   if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-fail "no such key"
+    return "$EX_IOERR"
+  fi
+
+  count=$(wc -l "$KEY_PATH" | cut -d' ' -f1)
+  if [[ "$INDEX" -lt 0 ]] || [[ "$INDEX" -gt "$count" ]]; then
+    log-fail "index out of range"
+    return "$EX_USAGE"
+  fi
+
+  LSET_TMP_WORK_DIR=$(mktemp -d /tmp/filedb_lset.XXXXX)
+  LSET_TMP_FILE=$(mktemp --tmpdir="${LSET_TMP_WORK_DIR}" "lset.key.XXXXXX")
+  trap 'rm -rf $LSET_TMP_WORK_DIR $LSET_TMP_FILE > /dev/null' RETURN INT TERM EXIT
+
+  i=1
+  while read -r L; do
+    if [[ "$i" == "$INDEX" ]]; then
+      echo "$VALUE"
+    else
+      echo "$L"
+    fi
+    ((i++))
+  done  < "$KEY_PATH" > "$LSET_TMP_FILE"
+
+  cp -f "$LSET_TMP_FILE" "$KEY_PATH"
+  return 0
+}
+
+filedb-rpop() {
+  declare desc="remove and get the last element in a list"
+  declare DOMAIN="$1" KEY="$2"
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+   if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ ! -f "$KEY_PATH" ]]; then
+    log-verbose "invalid key path"
+    return 0
+  fi
+
+  tail -n 1 "$KEY_PATH"
+  # shellcheck disable=SC2005
+  # shellcheck disable=SC2094
+  echo "$(head -n -1 "$KEY_PATH")"
+  LENGTH="$(filedb-llen "$DOMAIN" "$KEY")"
+  if [[ "$LENGTH" == "" ]] || [[ "$LENGTH" -eq 0 ]] || [[ "$LENGTH" -eq 1 ]]; then
+    rm -f "$KEY_PATH"
+    touch "$KEY_PATH" || true
+  else
+    # shellcheck disable=SC2005
+    echo "$(head -n -1 "$KEY_PATH")" > "$KEY_PATH"
+  fi
+  return 0
+}
+
+filedb-rpush() {
+  declare desc="append one or multiple values to a list"
+  declare DOMAIN="$1" KEY="$2" VALUES=("${@:3}")
+
+  local DOMAIN_PATH="$FILEDB_ROOT/$DOMAIN"
+  local KEY_PATH="$DOMAIN_PATH/$KEY"
+
+   if [[ -z "$DOMAIN" ]]; then
+    log-fail "no domain specified"
+    return "$EX_USAGE"
+  fi
+
+  if [[ -z "$KEY" ]]; then
+    log-fail "no key specified"
+    return "$EX_USAGE"
+  fi
+
+  touch "$KEY_PATH" || true
+  local VALUE
+  for VALUE in "${VALUES[@]}"; do
+    echo -e "$VALUE" | cat - "$KEY_PATH" | sponge "$KEY_PATH"
+  done
+  wc -l "$KEY_PATH" | cut -d' ' -f1
+  return 0
+}
+
 main() {
   declare desc="main input function"
   declare CMD="$1"
@@ -326,7 +582,7 @@ main() {
   case "$CMD" in
     unimplemented)
       fn-unimplemented "$@"
-      exit_code=0
+      exit_code=$?
       ;;
 
     help)
